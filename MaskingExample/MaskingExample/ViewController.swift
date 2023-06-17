@@ -34,10 +34,12 @@ class ViewController: UIViewController {
         self.present(self.imagePicker, animated: true)
     }
     
-    private func moveToMaskController(with image: UIImage) {
+    private func moveToMaskController(with image: UIImage, imageUrl url: String, format type: FormatType) {
         if let controller = self.storyboard?.instantiateViewController(withIdentifier: "MaskViewController") as? MaskViewController {
             controller.modalPresentationStyle = .fullScreen
             controller.scaledImage = image
+            controller.formatType = type
+            controller.fileUrl = url
             self.navigationController?.pushViewController(controller, animated: true)
         }
     }
@@ -56,15 +58,15 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
                 let imgData = try? Data(contentsOf: imageUrl) {
                 
                 // Process Picked Image if PNG, JPG & TIFF type
-                guard imgData.format != "unknown", let img = UIImage(data: imgData), let resizedImg = img.scaledImage(with: img.size) else {
+                guard imgData.format != FormatType.unknown, let img = UIImage(data: imgData), let resizedImg = img.scaledImage(with: img.size) else {
                     return
                 }
-                self.moveToMaskController(with: resizedImg)
+                self.moveToMaskController(with: resizedImg, imageUrl: imageUrl.absoluteString, format: imgData.format)
                 
             } else if let captureImage = info[.originalImage] as? UIImage,
-                      let resizedImg = captureImage.scaledCaptureImage(with: captureImage.size) { // Process Captured Photo
+                      let resizedImg = captureImage.scaledCaptureImage(with: captureImage.size), let imgData = resizedImg.pngData() { // Process Captured Photo
                 
-                self.moveToMaskController(with: resizedImg)
+                self.moveToMaskController(with: resizedImg, imageUrl: "", format: imgData.format)
             }
         }
     }

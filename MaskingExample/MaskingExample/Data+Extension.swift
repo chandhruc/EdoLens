@@ -7,8 +7,14 @@
 
 import Foundation
 
+enum FormatType: String {
+    case png = "png"
+    case jpg = "jpg"
+    case tiff = "tiff"
+    case unknown = "unknown"
+}
 extension Data {
-    var format: String {
+    var format: FormatType {
         let array = [UInt8](self)
         let ext: String
         switch array[0] {
@@ -21,6 +27,6 @@ extension Data {
         default:
             ext = "unknown"
         }
-        return ext
+        return FormatType(rawValue: ext) ?? .unknown
     }
 }
